@@ -316,11 +316,20 @@ def _dispatch(name: str, args: dict):
 
 
 # ---------------------------------------------------------------------------
-# Entry point
+# Entry point — stdio_server is an async context manager, not a coroutine
 # ---------------------------------------------------------------------------
 
+async def _run():
+    async with stdio_server() as (read_stream, write_stream):
+        await app.run(
+            read_stream,
+            write_stream,
+            app.create_initialization_options(),
+        )
+
+
 def main():
-    asyncio.run(stdio_server(app))
+    asyncio.run(_run())
 
 
 if __name__ == "__main__":
